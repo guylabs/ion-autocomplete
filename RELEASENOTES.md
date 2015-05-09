@@ -9,6 +9,8 @@
 
 * Fixed issue [#5](https://github.com/guylabs/ion-autocomplete/issues/5).
 * Fixed issue [#6](https://github.com/guylabs/ion-autocomplete/issues/6).
+* Fixed issue [#8](https://github.com/guylabs/ion-autocomplete/issues/8).
+* Fixed issue [#10](https://github.com/guylabs/ion-autocomplete/issues/10).
 
 ## Version 0.2.0
 

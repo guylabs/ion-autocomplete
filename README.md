@@ -8,6 +8,8 @@ ion-autocomplete
 #Table of contents
 
 - [Demo](#demo)
+- [Introduction](#introduction)
+- [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Configurable options](#configurable-options)
@@ -30,6 +32,20 @@ ion-autocomplete
 # Demo
 
 ![Animated demo](https://github.com/guylabs/ion-autocomplete/raw/master/demo.gif)
+
+# Introduction
+
+For one of my private projects I needed an autocomplete component in Ionic. I searched a lot and found some plain Angular autocompletes, but these had too much other dependencies and mostly didn't look that good within Ionic. Then one day I stumbled upon the [ion-google-place](https://github.com/israelidanny/ion-google-place) project which was exactly what I was looking for, except that it was just working with the Google Places API. So I forked the project and made it configurable such that you can add the service you need. The differences between the ion-google-place project and the ion-autocomplete are listed in the features.
+
+# Features
+
+The ion-autocomplete component has the following features:
+- Multiple selection support
+- Configure a callback when an item is clicked
+- Configurable service which provides the items to list
+- Configure what is stored in the model and what is seen in the list
+- Configure all labels used in the component
+- Configure the template used to show the autocomplete component
 
 # Installation
 

@@ -183,8 +183,34 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         scope.$deregisterBackButton && scope.$deregisterBackButton();
                     };
 
-                    // click handler on the input field which
+                    // object to store if the user moved the finger to prevent opening the modal
+                    var scrolling = {
+                        moved: false,
+                        startX: 0,
+                        startY: 0
+                    };
+
+                    // store the start coordinates of the touch start event
+                    var onTouchStart = function(e) {
+                        scrolling.moved = false;
+                        scrolling.startX = e.touches[0].clientX;
+                        scrolling.startY = e.touches[0].clientY;
+                    };
+
+                    // check if the finger moves more than 10px and set the moved flag to true
+                    var onTouchMove = function(e) {
+                        if (Math.abs(e.touches[0].clientX - scrolling.startX) > 10 ||
+                            Math.abs(e.touches[0].clientY - scrolling.startY) > 10) {
+                            scrolling.moved = true;
+                        }
+                    };
+
+                    // click handler on the input field to show the search container
                     var onClick = function (event) {
+                        // only open the dialog if was not touched at the beginning of a legitimate scroll event
+                        if (scrolling.moved) {
+                            return;
+                        }
 
                         // prevent the default event and the propagation
                         event.preventDefault();
@@ -211,9 +237,11 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         return false;
                     };
 
-                    // bind the onClick handler to the click and touchend events
-                    element.bind('click', onClick);
+                    // bind the handlers to the click and touch events of the input field
+                    element.bind('touchstart', onTouchStart);
+                    element.bind('touchmove', onTouchMove);
                     element.bind('touchend', onClick);
+                    element.bind('click', onClick);
 
                     // cancel handler for the cancel button which clears the search input field model and hides the
                     // search container and the ionic backdrop
