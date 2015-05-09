@@ -12,3 +12,8 @@ input.ion-autocomplete[readonly] {
     background-color: transparent;
     cursor: text;
 }
+
+.ion-autocomplete-loader {
+    text-align: center;
+    padding-top: 5px;
+}
