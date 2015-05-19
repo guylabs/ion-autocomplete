@@ -147,7 +147,11 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // watcher on the search field model to update the list according to the input
                     compiledTemplate.scope.$watch('searchQuery', function (query) {
-
+                        // if the model is cleared externally, clear the input
+                        if(!query){
+                          ngModel.$setViewValue('');
+                          ngModel.$render();
+                        }
                         // if the search query is empty, clear the items
                         if (query == '') {
                             compiledTemplate.scope.items = [];
