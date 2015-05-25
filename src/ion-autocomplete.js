@@ -15,7 +15,9 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 itemValueKey: '@',
                 itemViewValueKey: '@',
                 multipleSelect: '@',
-                itemsClickedMethod: '&'
+                itemsClickedMethod: '&',
+                loader: '@',
+                loaderIcon: '@'
             },
             link: function (scope, element, attrs, ngModel) {
 
@@ -28,6 +30,13 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 scope.selectItemsLabel = !scope.selectItemsLabel ? 'Select an item...' : scope.selectItemsLabel;
                 scope.selectedItemsLabel = !scope.selectedItemsLabel ? 'Selected items:' : scope.selectedItemsLabel;
                 scope.templateUrl = !scope.templateUrl ? '' : scope.templateUrl;
+
+                // Initialise loader variables
+                scope.loader = scope.loader == "true" ? true : false;
+                scope.loaderIcon = !scope.loaderIcon ? '' : scope.loaderIcon;
+
+                // Loading flag for when query method is a function/promise
+                scope.loading = false;
 
                 // the items, selected items and the query for the list
                 scope.items = [];
@@ -75,6 +84,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     '<i class="icon ion-trash-a" style="cursor:pointer" ng-click="removeItem($index)"></i>',
                     '</ion-item>',
                     '<ion-item class="item-divider" ng-show="items.length > 0">{{selectItemsLabel}}</ion-item>',
+                    '<div class="ion-autocomplete-loader" ng-if="loader && loading"><ion-spinner icon="{{loaderIcon}}"></ion-spinner></div>',
                     '<ion-item collection-repeat="item in items" item-height="55" item-width="100%" type="item-text-wrap" ng-click="selectItem(item)">',
                     '{{getItemValue(item, itemViewValueKey)}}',
                     '</ion-item>',
@@ -154,6 +164,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         }
 
                         if (query && angular.isFunction(compiledTemplate.scope.itemsMethod)) {
+                            // Set loading flag for template
+                            compiledTemplate.scope.loading = true;
 
                             // convert the given function to a $q promise to support promises too
                             var promise = $q.when(compiledTemplate.scope.itemsMethod({query: query}));
@@ -162,6 +174,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                                 // set the items which are returned by the items method
                                 compiledTemplate.scope.items = compiledTemplate.scope.getItemValue(promiseData,
                                     compiledTemplate.scope.itemsMethodValueKey);
+                                // Unset loading flag for template
+                                compiledTemplate.scope.loading = false;
                             }, function (error) {
                                 // reject the error because we do not handle the error here
                                 return $q.reject(error);
