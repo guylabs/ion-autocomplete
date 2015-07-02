@@ -107,10 +107,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // function which selects the item, hides the search container and the ionic backdrop if it is not a multiple select autocomplete
                     compiledTemplate.scope.selectItem = function (item) {
-
-                        // clear the items and the search query
-                        compiledTemplate.scope.items = [];
-                        compiledTemplate.scope.searchQuery = undefined;
+                        // KEEP the search query (especially if blank)
+                        // // clear the items and the search query
+                        // compiledTemplate.scope.items = [];
+                        // compiledTemplate.scope.searchQuery = undefined;
 
                         // if multiple select is on store the selected items
                         if (compiledTemplate.scope.multipleSelect === "true") {
@@ -274,6 +274,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         // prevent the default event and the propagation
                         event.preventDefault();
                         event.stopPropagation();
+                        
+                        // set the searchquery to blank if nothing selected so shows full list.
+                        if (this.value=="")
+                                scope.searchQuery="";
 
                         // show the ionic backdrop and the search container
                         displaySearchContainer();
@@ -322,7 +326,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     // cancel handler for the cancel button which clears the search input field model and hides the
                     // search container and the ionic backdrop
                     compiledTemplate.element.find('button').bind('click', function (event) {
-                        compiledTemplate.scope.searchQuery = undefined;
+                        // not sure what expected behavour should be on cancel? either set to blank "", or ignored. ignore for now:
+                        // compiledTemplate.scope.searchQuery = undefined;
                         hideSearchContainer();
                     });
 
