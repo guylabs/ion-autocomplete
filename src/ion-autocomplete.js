@@ -21,7 +21,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 itemsRemovedMethod: '&',
                 componentId: '@',
                 modelToItemMethod: '&',
-                loadingIcon: '@'
+                loadingIcon: '@',
+				valueFormat: '@'
             },
             link: function (scope, element, attrs, ngModel) {
 
@@ -347,7 +348,16 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                 // render the view value of the model
                 ngModel.$render = function () {
-                    element.val(scope.getItemValue(ngModel.$viewValue, scope.itemViewValueKey));
+					if (scope.valueFormat) {
+						if (ngModel.$viewValue != '') {
+							var val = scope.valueFormat.replace(/\{(\w+)\}/g, function (a, prop) {
+								return scope.getItemValue(ngModel.$viewValue, scope.itemViewValueKey)[prop];
+							});
+							element.val(val);
+						}
+					}
+					else
+						element.val(scope.getItemValue(ngModel.$viewValue, scope.itemViewValueKey));
                 };
 
                 // set the view value of the model
