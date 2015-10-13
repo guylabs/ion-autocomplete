@@ -92,7 +92,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 // first check if a template url is set and use this as template
                 if (ionAutocompleteController.templateUrl) {
                     $templateRequest(ionAutocompleteController.templateUrl).then(function (template) {
-                        $document.find('body').append($compile(angular.element(template))(scope));
+                        $document.find('body').append($compile(angular.element(
+                            '<div class="ion-autocomplete-container ' + ionAutocompleteController.randomCssClass + ' modal" style="display: none;">' +
+                            template +
+                            '</div>'))(scope));
                     });
                 } else {
                     // only append the container to the body if there is no container already present (if multiple components are used)
