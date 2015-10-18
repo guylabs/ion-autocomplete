@@ -18,7 +18,9 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 placeholder: '@',
                 cancelLabel: '@',
                 selectItemsLabel: '@',
-                selectedItemsLabel: '@'
+                selectedItemsLabel: '@',
+                selectedItemsSeparator: '@',
+                selectedItemsRenderMethod: '&'
             },
             controllerAs: 'viewModel',
             controller: ['$attrs', '$timeout', function ($attrs, $timeout) {
@@ -35,6 +37,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     controller.cancelLabel = valueOrDefault(controller.cancelLabel, 'Done');
                     controller.selectItemsLabel = valueOrDefault(controller.selectItemsLabel, "Select an item...");
                     controller.selectedItemsLabel = valueOrDefault(controller.selectedItemsLabel, $interpolate("Selected items{{maxSelectedItems ? ' (max. ' + maxSelectedItems + ')' : ''}}:")(controller));
+                    controller.selectedItemsSeparator = valueOrDefault(controller.selectedItemsSeparator, ',');
                 });
 
                 // set the default values of the passed in attributes
@@ -46,7 +49,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 this.componentId = valueOrDefault($attrs.componentId, undefined);
                 this.loadingIcon = valueOrDefault($attrs.loadingIcon, undefined);
                 this.manageExternally = valueOrDefault($attrs.manageExternally, "false");
-
+                this.selectedItemsSeparator = valueOrDefault($attrs.selectedItemsSeparator, ',');
+                this.hasSelectedItemsRenderMethod = !!($attrs['selectedItemsRenderMethod']);
                 // loading flag if the items-method is a function
                 this.showLoadingIcon = false;
 
@@ -395,7 +399,19 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                 // render the view value of the model
                 ngModelController.$render = function () {
-                    element.val(ionAutocompleteController.getItemValue(ngModelController.$viewValue, ionAutocompleteController.itemViewValueKey));
+                    var itemValue = ionAutocompleteController.getItemValue(ngModelController.$viewValue, ionAutocompleteController.itemViewValueKey);
+                    var displayValue = undefined;
+
+                    if (ionAutocompleteController.hasSelectedItemsRenderMethod && angular.isFunction(ionAutocompleteController.selectedItemsRenderMethod)) {
+                        displayValue = ionAutocompleteController.selectedItemsRenderMethod({items: itemValue});
+                    }
+                    else if (typeof itemValue === 'object' ) {
+                        displayValue = itemValue.join(ionAutocompleteController.selectedItemsSeparator || ",");
+                    }
+                    else {
+                        displayValue = itemValue;
+                    }
+                    element.val(displayValue);
                 };
 
                 // set the view value of the model
