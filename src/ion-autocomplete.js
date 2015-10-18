@@ -408,6 +408,12 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     ngModelController.$parsers.push(function (viewValue) {
                         return ionAutocompleteController.getItemValue(viewValue, ionAutocompleteController.itemValueKey);
                     });
+
+                    // Clean Up when scope is getting destroyed
+                    scope.$on('$destroy', function () {
+                        // Angular takes care of cleaning all $watch and listeners, but we still need to remove the modal
+                        searchInputElement.remove();
+                    });
                 });
             }
         };
