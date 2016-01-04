@@ -1,7 +1,7 @@
 /*
  * ion-autocomplete 0.3.1
- * Copyright 2015 Danny Povolotski 
- * Copyright modifications 2015 Guy Brand 
+ * Copyright 2016 Danny Povolotski 
+ * Copyright modifications 2016 Guy Brand 
  * https://github.com/guylabs/ion-autocomplete
  */
 (function() {
@@ -233,7 +233,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     ionAutocompleteController.fetchSearchQuery = function (query, isInitializing) {
 
                         // right away return if the query is undefined to not call the items method for nothing
-                        if (query === undefined) {
+                        if (query === undefined || isInitializing) {
                             return;
                         }
 
