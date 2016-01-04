@@ -223,7 +223,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     ionAutocompleteController.fetchSearchQuery = function (query, isInitializing) {
 
                         // right away return if the query is undefined to not call the items method for nothing
-                        if (query === undefined) {
+                        if (query === undefined || isInitializing) {
                             return;
                         }
 
