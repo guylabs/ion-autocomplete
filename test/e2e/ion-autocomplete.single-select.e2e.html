@@ -21,12 +21,15 @@
                     $scope.doneButtonCallbackValueModel = "";
 
                     $scope.getTestItems = function (query) {
-                        return {
-                            items: [
-                                {id: "1", name: query + "1", view: "view: " + query + "1"},
-                                {id: "2", name: query + "2", view: "view: " + query + "2"},
-                                {id: "3", name: query + "3", view: "view: " + query + "3"}]
-                        };
+                        if (query) {
+                            return {
+                                items: [
+                                    {id: "1", name: query + "1", view: "view: " + query + "1"},
+                                    {id: "2", name: query + "2", view: "view: " + query + "2"},
+                                    {id: "3", name: query + "3", view: "view: " + query + "3"}]
+                            };
+                        }
+                        return {items: []};
                     };
 
                     $scope.itemsClicked = function (callback) {
@@ -51,7 +54,7 @@
                        ng-model="model"
                        item-value-key="name"
                        item-view-value-key="view"
-                       items-method="getTestItems(query)"
+                       items-method="getTestItems(query, isInitializing)"
                        items-method-value-key="items"
                        placeholder="Enter test query ..."
                        items-clicked-method="itemsClicked(callback)"

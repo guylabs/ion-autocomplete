@@ -369,6 +369,34 @@ describe('ion-autocomplete single select', function () {
         expect(getSearchContainerElement().css('display')).toBe('none');
     });
 
+    it('must pass the outter ng-model-options to the inner search input field', function () {
+        var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" ng-model-options="{debounce: 1000}"/>');
+
+        // click on the element
+        element.triggerHandler('click');
+        scope.$digest();
+
+        // show the search container externally
+        expect(getSearchInputElement().controller('ngModel').$options.debounce).toBe(1000);
+    });
+
+    it('must remove the search container if the scope is destroyed', function () {
+        var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" />');
+
+        // click on the element
+        element.triggerHandler('click');
+        scope.$digest();
+
+        // check that the search container element is in the dom
+        expect(getSearchContainerElement().length).toBe(1);
+
+        // destroy the scope
+        scope.$destroy();
+
+        // check that the search container element is not anymore in the dom
+        expect(getSearchContainerElement().length).toBe(0);
+    });
+
     /**
      * Compiles the given element and executes a digest cycle on the scope.
      *

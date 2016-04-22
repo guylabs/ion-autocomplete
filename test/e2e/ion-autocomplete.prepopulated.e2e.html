@@ -17,7 +17,7 @@
                 .controller('IonAutocompleteController', function ($scope) {
 
                     $scope.model = [];
-                    $scope.externalModel = {data: ['test1', 'test2']};
+                    $scope.externalModel = ['test1', 'test2'];
                     $scope.preselectedSearchItems = [
                         {id: "1", name: "1", view: "view: 1"},
                         {id: "2", name: "2", view: "view: 2"}];
@@ -33,22 +33,25 @@
                         }
                     };
 
-                    $scope.getTestItems = function (query) {
-                        return {
-                            items: [
-                                {id: "1", name: query + "1", view: "view: " + query + "1"},
-                                {id: "2", name: query + "2", view: "view: " + query + "2"},
-                                {id: "3", name: query + "3", view: "view: " + query + "3"}]
-                        };
+                    $scope.getTestItems = function (query, isInitializing) {
+                        if (isInitializing) {
+                            return {items: []}
+                        } else {
+                            return {
+                                items: [
+                                    {id: "1", name: query + "1", view: "view: " + query + "1"},
+                                    {id: "2", name: query + "2", view: "view: " + query + "2"},
+                                    {id: "3", name: query + "3", view: "view: " + query + "3"}]
+                            };
+                        }
                     };
 
                     $scope.itemsClicked = function (callback) {
                         $scope.callbackValueModel = callback;
                     };
 
-                    $scope.updateModel = function () {
-                        $scope.externalModel.data = ['test1', 'test2', 'test3', 'test4'];
-                        console.log("external Model");
+                    $scope.clearModel = function () {
+                        $scope.externalModel = [];
                     }
                 });
     </script>
@@ -66,13 +69,13 @@
                        search-items="preselectedSearchItems"
                        item-value-key="name"
                        item-view-value-key="view"
-                       items-method="getTestItems(query)"
+                       items-method="getTestItems(query, isInitializing)"
                        items-method-value-key="items"
                        placeholder="Enter test query ..."
                        items-clicked-method="itemsClicked(callback)"
                        model-to-item-method="getItemFromModelValue(modelValue)"
                        selected-items="selectedItems"
-                       external-model="externalModel.data"/>
+                       external-model="externalModel"/>
             </label>
 
             <label class="item item-input">
@@ -82,7 +85,7 @@
 
             <label class="item item-input">
                 <span class="input-label">Multiple select autocomplete external model value</span>
-                <input type="text" class="ion-autocomplete-external-model" ng-model="externalModel.data"
+                <input type="text" class="ion-autocomplete-external-model" ng-model="externalModel"
                        autocomplete="off">
             </label>
 
@@ -98,9 +101,8 @@
                        autocomplete="off">
             </label>
         </form>
-
-        <button ng-click="updateModel()">
-            Increment
+        <button class="ion-autocomplete-clear-button" ng-click="clearModel()">
+            Clear items
         </button>
     </ion-content>
 </ion-view>

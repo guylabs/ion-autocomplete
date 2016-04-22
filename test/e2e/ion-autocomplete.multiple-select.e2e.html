@@ -20,8 +20,10 @@
                     $scope.clickedValueModel = "";
                     $scope.removedValueModel = "";
 
-                    $scope.getTestItems = function (query) {
-                        if (query) {
+                    $scope.getTestItems = function (query, isInitializing) {
+                        if (isInitializing) {
+                            return {items: []}
+                        } else {
                             return {
                                 items: [
                                     {id: "1", name: query + "1", view: "view: " + query + "1"},
@@ -29,7 +31,6 @@
                                     {id: "3", name: query + "3", view: "view: " + query + "3"}]
                             };
                         }
-                        return {items: []};
                     };
 
                     $scope.itemsClicked = function (callback) {
@@ -53,7 +54,7 @@
                        ng-model="model"
                        item-value-key="name"
                        item-view-value-key="view"
-                       items-method="getTestItems(query)"
+                       items-method="getTestItems(query, isInitializing)"
                        items-method-value-key="items"
                        placeholder="Enter test query ..."
                        items-clicked-method="itemsClicked(callback)"

@@ -35,8 +35,8 @@ ion-autocomplete
         - [Template data](#template-data)
         - [Loading icon](#loading-icon)
         - [Manage externally](#manage-externally)
-        - [Search items](#search-items)
     - [Using expressions in value keys](#using-expressions-in-value-keys)
+    - [Debouncing](#debouncing)
 - [Release notes](#release-notes)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -71,8 +71,8 @@ bower install ion-autocomplete --save
 ```
 2. Import the `ion-autocomplete` javascript and css file into your HTML file:
 ```html
-<script src="bower_components/ion-autocomplete/dist/ion-autocomplete.js"></script>
-<link href="bower_components/ion-autocomplete/dist/ion-autocomplete.css" rel="stylesheet">
+<script src="lib/ion-autocomplete/dist/ion-autocomplete.js"></script>
+<link href="lib/ion-autocomplete/dist/ion-autocomplete.css" rel="stylesheet">
 ```
 3. Add `ion-autocomplete` as a dependency on your Ionic app:
 ```javascript
@@ -91,7 +91,8 @@ ion-autocomplete version | Ionic version
 0.0.2 - 0.1.2 | 1.0.0-beta.14
 0.2.0 - 0.2.1 | 1.0.0-rc.3
 0.2.2 - 0.2.3 | 1.0.0
-0.3.0 - latest | 1.1.0
+0.3.0 - 0.3.1 | 1.1.0
+0.3.2 - latest | 1.1.1
 
 # Usage
 
@@ -119,7 +120,7 @@ return a static item of the query:
 
 Define the callback in your scope:
 ```javascript
-$scope.callbackMethod = function (query) {
+$scope.callbackMethod = function (query, isInitializing) {
     return [query];
 }
 ```
@@ -131,7 +132,7 @@ And set the items method on the directive:
 
 You are also able to return a promise from this callback method. For example:
 ```javascript
-$scope.callbackMethod = function (query) {
+$scope.callbackMethod = function (query, isInitializing) {
     return $http.get(endpoint);
 }
 ```
@@ -139,11 +140,45 @@ $scope.callbackMethod = function (query) {
 Note that the parameter for the `callbackMethod` needs to be named `query`. Otherwise the callback will not get called properly.
 If you want to also retrieve the [ComponentId](#component-id) then you need to add a second parameter called `componentId`:
 ```javascript
-$scope.callbackMethod = function (query, componentId) {
+$scope.callbackMethod = function (query, isInitializing, componentId) {
     if(componentId == "component1") {
         return $http.get(endpoint1);
     }
     return [query];
+}
+```
+
+If you want to pre populate the items which are shown when the modal is visible before the user enters a query then you can check the `isInitializing` flag of
+the `items-method` as this is set to true if it is called for the initial items. Here is an example which shows the `test` item as an initial item:
+```javascript
+$scope.callbackMethod = function (query, isInitializing) {
+    if(isInitializing) {
+        // depends on the configuration of the `items-method-value-key` (items) and the `item-value-key` (name) and `item-view-value-key` (name)
+        return { items: [ { name: "test" } ] }
+    } else {
+        return $http.get(endpoint);
+    }
+}
+```
+
+If you want to clear the list each time the user opens the modal then just return an empty array like in the following example:
+```javascript
+$scope.callbackMethod = function (query, isInitializing) {
+    if(isInitializing) {
+        // depends on the configuration of the `items-method-value-key` (items) and the `item-value-key` (name) and `item-view-value-key` (name)
+        return { items: [] }
+    } else {
+        return $http.get(endpoint);
+    }
+}
+```
+
+And if you do not want that the searched items list gets modified then just return nothing as in this example:
+```javascript
+$scope.callbackMethod = function (query, isInitializing) {
+    if(!isInitializing) {
+        return $http.get(endpoint);
+    }
 }
 ```
 
@@ -286,7 +321,7 @@ The two way binded external model (`external-model` attribute on the component) 
 component. Be aware that the `external-model` is not updated by the component when an item is selected. It is just used to prepopulate or clear the selected items. If you need to get the current selected items you are able 
 to read the value of the `ng-model`. For an example have a look at the [`model-to-item-method`](#the-model-to-item-method) documentation.
 
-If you need to clear the selected items then you are able to set the `external-model` to an empty array.
+If you need to clear the selected items then you are able to set the `external-model` to an empty array (another value is not clearing the selected items).
 
 ### The `model-to-item-method`
 
@@ -300,16 +335,17 @@ Define the `model-to-item-method` and `external-model` in your scope:
 ```javascript
 $scope.modelToItemMethod = function (modelValue) {
 
-    // get the full model item from the model value and return it
+    // get the full model item from the model value and return it. You need to implement the `getModelItem` method by yourself 
+    // as this is just a sample. The method needs to retrieve the whole item (like the `items-method`) from just the model value.
     var modelItem = getModelItem(modelValue);
     return modelItem;
 }
-$scope.externalModel = {data: ['test1', 'test2', 'test3'];
+$scope.externalModel = ['test1', 'test2', 'test3'];
 ```
 
 And set the `model-to-item-method` on the directive:
 ```html
-<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" external-model="externalModel.data" model-to-item-method="modelToItemMethod(modelValue)" />
+<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" external-model="externalModel" model-to-item-method="modelToItemMethod(modelValue)" />
 ```
 
 You are also able to return a promise from this callback method. For example:
@@ -393,7 +429,7 @@ You are also able to set an own template for the autocomplete component (default
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" template-url="templates/template.html" />`
 ```
 
-This way you are able to override the default template (the `searchContainerTemplate` variable [here](https://github.com/guylabs/ion-autocomplete/blob/master/src/ion-autocomplete.js#L75)) 
+This way you are able to override the default template (the `template` variable [here](https://github.com/guylabs/ion-autocomplete/blob/master/src/ion-autocomplete.js#L68)) 
 and use your own template. The component will use the default template if the `template-url` is not defined.
 
 You are able to use all the configurable attributes as expressions in your template. I would advise to use the default template as base template
@@ -402,7 +438,12 @@ and then add your custom additions to it.
 > Please also take care when you change how the items are shown or what method is called if an item is clicked, 
 > because changing this could make the component unusable.
 
-The template itself will be loaded with the `$ionicTemplateLoader` and this will also use the Angular `$templateCache`.
+You will need to set the proper `randomCssClass` for the outer most div container in your template and you can get the value by using the `{{viewModel.randomCssClass}}` expression
+like in the following example:
+
+```html
+<div class="ion-autocomplete-container {{viewModel.randomCssClass}} modal" style="display: none;">
+```
 
 ### Template data
 
@@ -436,41 +477,23 @@ be shown at the right side of the search input field.
 ### Manage externally
 
 To manage the `ion-autocomplete` component externally means that you need to handle when the search modal is shown. To enable this functionality 
-you need to set the `externally-managed` attribute to `true` and then you can call the `showModal()` method on the controller. Here an example:
+you need to set the `manage-externally` attribute to `true` and then you can call the `showModal()` method on the controller. Here an example:
 
 ```javascript
 // create the externally managed component and a button which has a click handler to a scope method
-<input ion-autocomplete type="text" class="ion-autocomplete" autocomplete="off" ng-model="model" externally-managed="true" />
+<input ion-autocomplete type="text" class="ion-autocomplete" autocomplete="off" ng-model="model" manage-externally="true" />
 <button class="button" ng-click="clickButton()">Open modal</button>
 
 // inside your controller you can define the 'clickButton()' method the following way
 this.clickButton = function () {
     var ionAutocompleteElement = document.getElementsByClassName("ion-autocomplete");
+    angular.element(ionAutocompleteElement).controller('ionAutocomplete').fetchSearchQuery("", true);
     angular.element(ionAutocompleteElement).controller('ionAutocomplete').showModal();
 }
 ```
 
 Then you will need to click on the button to open the search modal. This functionality is useful if the user wants to edit the selected item inside the 
 input field after she/he selected the item/s.
-
-### Search items
-
-If you want to pre populate the items which are shown when the user enters a query then you can set the `search-items` attribute to an array of 
-values that have the same structure like the value which is returned from the `items-method`.
-
-Here a small example:
-
-Define the pre populated items in your scope:
-```javascript
-$scope.prepopulatedItems = [ { "name" : "item1" },{ "name" : "item2" }, ... ];
-```
-
-And set the `search-items` on the directive:
-```html
-<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" search-items="prepopulatedItems" />
-```
-
-Then when the user opens the component, then he will right away see the already pre populated search items.
 
 ### Selected items
 
@@ -503,6 +526,16 @@ name attribute of the child object:
 
 ```html
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" item-view-value-key="child.name" />
+```
+
+## Debouncing
+
+If you want to debounce the search input field request, then you are able to set the `ng-model-options` attribute on the input field where you define the `ion-autocomplete`
+directive. These options will then be added to the search input field. Be aware that when you add a debounce the update of the model value will also be debounced the 
+ same amount as the request to the `items-method`. Here a small example:
+ 
+```html
+<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" ng-model-options="{debounce:1000}" />
 ```
 
 # Release notes
