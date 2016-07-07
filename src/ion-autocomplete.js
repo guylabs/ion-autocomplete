@@ -79,7 +79,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     '<input type="search" class="ion-autocomplete-search" ng-model="viewModel.searchQuery" ng-model-options="viewModel.ngModelOptions" placeholder="{{viewModel.placeholder}}"/>',
                     '</label>',
                     '<div class="ion-autocomplete-loading-icon" ng-if="viewModel.showLoadingIcon && viewModel.loadingIcon"><ion-spinner icon="{{viewModel.loadingIcon}}"></ion-spinner></div>',
-                    '<button class="ion-autocomplete-cancel button button-clear" ng-click="viewModel.cancelClick()">{{viewModel.cancelLabel}}</button>',
+                    '<button class="ion-autocomplete-cancel button button-clear button-dark" ng-click="viewModel.cancelClick()">{{viewModel.cancelLabel}}</button>',
                     '</div>',
                     '<ion-content class="has-header">',
                     '<ion-item class="item-divider">{{viewModel.selectedItemsLabel}}</ion-item>',
