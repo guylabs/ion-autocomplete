@@ -85,10 +85,13 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 var template = [
                     '<div class="ion-autocomplete-container ' + ionAutocompleteController.randomCssClass + ' modal" style="display: none;">',
                     '<div class="bar bar-header item-input-inset">',
-                    '<label class="item-input-wrapper">',
+                    '<div class="item-input-wrapper">',
+                    '<label class="ion-autocomplete-search-label">',
                     '<i class="icon ion-search placeholder-icon"></i>',
                     '<input type="search" class="ion-autocomplete-search" ng-model="viewModel.searchQuery" ng-model-options="viewModel.ngModelOptions" placeholder="{{viewModel.placeholder}}"/>',
                     '</label>',
+                    '<button class="ion-autocomplete-clear button button-clear" ng-if="viewModel.searchQuery" ng-click="viewModel.clearClick()"><i class="icon ion-android-cancel"></i></button>',
+                    '</div>',
                     '<div class="ion-autocomplete-loading-icon" ng-if="viewModel.showLoadingIcon && viewModel.loadingIcon"><ion-spinner icon="{{viewModel.loadingIcon}}"></ion-spinner></div>',
                     '<button class="ion-autocomplete-cancel button button-clear" ng-click="viewModel.cancelClick()">{{viewModel.cancelLabel}}</button>',
                     '</div>',
@@ -412,6 +415,11 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         element.bind('touchmove', onTouchMove);
                         element.bind('touchend click focus', onClick);
                     }
+
+                    // handler for the clear button which clears the search input field model
+                    ionAutocompleteController.clearClick = function () {
+                        ionAutocompleteController.searchQuery = undefined;
+                    };
 
                     // cancel handler for the cancel button which clears the search input field model and hides the
                     // search container and the ionic backdrop and calls the cancel button clicked callback
