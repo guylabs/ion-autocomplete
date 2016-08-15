@@ -56,6 +56,7 @@
       "url": "https://github.com/guylabs/ion-autocomplete/blob/master/LICENSE"
     }
   ],
+  "main": "dist/ion-autocomplete.js",
   "scripts": {
     "start": "./node_modules/protractor/bin/webdriver-manager update && ./node_modules/protractor/bin/webdriver-manager start",
     "test": "[ -d node_modules/protractor ] && ./node_modules/protractor/bin/webdriver-manager update && grunt build"

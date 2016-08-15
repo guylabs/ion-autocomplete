@@ -37,7 +37,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             expect(itemList.get(0).getText()).toEqual('view: test1');
             expect(itemList.get(1).getText()).toEqual('view: test2');
@@ -54,7 +54,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             expect(itemList.get(0).getText()).toEqual('view: test1');
             expect(itemList.get(1).getText()).toEqual('view: test2');
@@ -71,7 +71,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             itemList.get(0).click().then(function () {
                 expect($('input.ion-autocomplete-search').isDisplayed()).toBeFalsy();
@@ -92,7 +92,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             itemList.get(0).click().then(function () {
                 expect($('input.ion-autocomplete-search').isDisplayed()).toBeFalsy();
@@ -120,7 +120,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             itemList.get(0).click().then(function () {
                 expect($('input.ion-autocomplete-search').isDisplayed()).toBeFalsy();
@@ -130,7 +130,7 @@ describe('ion-autocomplete single select', function () {
                 element(by.css('input.ion-autocomplete')).click().then(function () {
                     expect($('input.ion-autocomplete-search').isDisplayed()).toBeTruthy();
                     element(by.css('input.ion-autocomplete-search')).sendKeys("test");
-                    var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+                    var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
                     itemList.get(2).click().then(function () {
                         expect($('input.ion-autocomplete-search').isDisplayed()).toBeFalsy();
                         expect($('input.ion-autocomplete-test-model').isDisplayed()).toBeTruthy();
@@ -152,7 +152,7 @@ describe('ion-autocomplete single select', function () {
 
             element(by.css('input.ion-autocomplete-search')).sendKeys("test");
 
-            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems"]'));
+            var itemList = element.all(by.css('[ng-repeat="item in viewModel.searchItems track by $index"]'));
             expectCollectionRepeatCount(itemList, 3);
             itemList.get(0).click().then(function () {
                 expect($('input.ion-autocomplete-search').isDisplayed()).toBeFalsy();

@@ -25,7 +25,7 @@ ion-autocomplete
         - [The `items-removed-method`](#the-items-removed-method)
         - [External model](#external-model)
         - [The `model-to-item-method`](#the-model-to-item-method)
-        - [The `cancel-button-clicked-method`](#the-cancel-button-clicked-method)
+        - [The `cancel-button-clicked-method` (same as done button)](#the-cancel-button-clicked-method-same-as-done-button)
         - [ComponentId](#component-id)
         - [Placeholder](#placeholder)
         - [Cancel button label](#cancel-button-label)
@@ -37,6 +37,7 @@ ion-autocomplete
         - [Manage externally](#manage-externally)
     - [Using expressions in value keys](#using-expressions-in-value-keys)
     - [Debouncing](#debouncing)
+    - [Usage inside an Ionic modal](#usage-inside-an-ionic-modal)
 - [Release notes](#release-notes)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -60,7 +61,7 @@ The ion-autocomplete component has the following features:
 - Configure what is stored in the model and what is seen in the list
 - Configure the template used to show the autocomplete component
 - Configure a callback when an item is clicked/removed
-- Configure a callback when the done button is clicked
+- Configure a callback when the cancel/done button is clicked
 - Configure all labels used in the component
 
 # Installation
@@ -181,6 +182,38 @@ $scope.callbackMethod = function (query, isInitializing) {
     }
 }
 ```
+
+A common usage for the `items-method` is to use the [Google Map Geocode API](https://developers.google.com/maps/documentation/geocoding/intro?hl=de#Geocoding) for address suggestions.
+
+To use Googles API you need to link the required library in your `index.html` file:
+```html
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+```
+
+In the `ion-autocomplete` input field you set the `items-method` to the below shown method `getAddressSuggestions` and set the value key to `formatted_address` to display the formatted address:
+```html
+<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model"
+item-view-value-key="formatted_address"
+items-method="getAddressSuggestions(query)" />
+```
+
+To query Googles API you have to create a `Geocoder` instance and use the `queryString` as input and return the result object in a promise.
+```javascript
+var geocoder = new google.maps.Geocoder();
+
+$scope.getAddressSuggestions(queryString){
+    var defer = $q.defer();
+    geocoder.geocode(
+        {address: queryString},
+        function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) { defer.resolve(results); }
+            else { defer.reject(results); }
+        }
+    );
+    return defer.promise;
+}
+```
+
 
 ### The `items-method-value-key`
 
@@ -357,9 +390,9 @@ $scope.modelToItemMethod = function (modelValue) {
 
 Note that the parameter for the `model-to-item-method` needs to be named `modelValue`. Otherwise the callback will not get called properly.
 
-### The `cancel-button-clicked-method`
+### The `cancel-button-clicked-method` (same as done button)
 
-You are able to pass a function to the `cancel-button-clicked-method` attribute to be notified when the cancel button is clicked to close the modal. The name of the 
+You are able to pass a function to the `cancel-button-clicked-method` attribute to be notified when the cancel/done button is clicked to close the modal. The name of the 
 parameter of the function must be `callback`. Here is an example:
 
 Define the callback in your scope:
@@ -536,6 +569,16 @@ directive. These options will then be added to the search input field. Be aware 
  
 ```html
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" ng-model-options="{debounce:1000}" />
+```
+
+## Usage inside an Ionic modal
+
+When you add the `ion-autocomplete` component to a separate Ionic modal, then you need to remove the modal when you switch the view. You can achieve this by adding the following scope `$destroy` listener where the separate modal is removed:
+
+```javascript
+$scope.$on('$destroy', function () {
+        $scope.modal.remove();
+    });
 ```
 
 # Release notes

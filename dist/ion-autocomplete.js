@@ -27,7 +27,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 placeholder: '@',
                 cancelLabel: '@',
                 selectItemsLabel: '@',
-                selectedItemsLabel: '@'
+                selectedItemsLabel: '@',
+                templateUrl: '@',
+                itemValueKey: '@',
+                itemViewValueKey: '@'
             },
             controllerAs: 'viewModel',
             controller: ['$attrs', '$timeout', '$scope', function ($attrs, $timeout, $scope) {
@@ -44,17 +47,18 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     controller.cancelLabel = valueOrDefault(controller.cancelLabel, 'Done');
                     controller.selectItemsLabel = valueOrDefault(controller.selectItemsLabel, "Select an item...");
                     controller.selectedItemsLabel = valueOrDefault(controller.selectedItemsLabel, $interpolate("Selected items{{maxSelectedItems ? ' (max. ' + maxSelectedItems + ')' : ''}}:")(controller));
+                    controller.templateUrl = valueOrDefault(controller.templateUrl, undefined);
+                    controller.itemValueKey = valueOrDefault(controller.itemValueKey, undefined);
+                    controller.itemViewValueKey = valueOrDefault(controller.itemViewValueKey, undefined);
                 });
 
                 // set the default values of the passed in attributes
                 this.maxSelectedItems = valueOrDefault($attrs.maxSelectedItems, undefined);
-                this.templateUrl = valueOrDefault($attrs.templateUrl, undefined);
                 this.itemsMethodValueKey = valueOrDefault($attrs.itemsMethodValueKey, undefined);
-                this.itemValueKey = valueOrDefault($attrs.itemValueKey, undefined);
-                this.itemViewValueKey = valueOrDefault($attrs.itemViewValueKey, undefined);
                 this.componentId = valueOrDefault($attrs.componentId, undefined);
                 this.loadingIcon = valueOrDefault($attrs.loadingIcon, undefined);
                 this.manageExternally = valueOrDefault($attrs.manageExternally, "false");
+                this.clearOnSelect = valueOrDefault($attrs.clearOnSelect, "true");
                 this.ngModelOptions = valueOrDefault($scope.$eval($attrs.ngModelOptions), {});
 
                 // loading flag if the items-method is a function
@@ -101,7 +105,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     '<i class="icon ion-trash-a" style="cursor:pointer" ng-click="viewModel.removeItem(0)"></i>',
                     '</ion-item>',
                     '<ion-item class="item-divider" ng-if="viewModel.searchItems.length > 0">{{viewModel.selectItemsLabel}}</ion-item>',
-                    '<ion-item ng-repeat="item in viewModel.searchItems" item-height="55px" item-width="100%" ng-click="viewModel.selectItem(item)" class="item-text-wrap">',
+                    '<ion-item ng-repeat="item in viewModel.searchItems track by $index" item-height="55px" item-width="100%" ng-click="viewModel.selectItem(item)" class="item-text-wrap">',
                     '{{viewModel.getItemValue(item, viewModel.itemViewValueKey)}}',
                     '</ion-item>',
                     '</ion-content>',
@@ -151,8 +155,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     // function which selects the item, hides the search container and the ionic backdrop if it has not maximum selected items attribute set
                     ionAutocompleteController.selectItem = function (item) {
 
-                        // clear the search query when an item is selected
-                        ionAutocompleteController.searchQuery = undefined;
+                        // if the clear on select is true, clear the search query when an item is selected
+                        if (ionAutocompleteController.clearOnSelect == "true") {
+                            ionAutocompleteController.searchQuery = undefined;
+                        }
 
                         // return if the max selected items is not equal to 1 and the maximum amount of selected items is reached
                         if (ionAutocompleteController.maxSelectedItems != "1" &&
@@ -275,12 +281,12 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                                 // force the collection repeat to redraw itself as there were issues when the first items were added
                                 $ionicScrollDelegate.resize();
-
-                                // hide the loading icon
-                                ionAutocompleteController.showLoadingIcon = false;
                             }, function (error) {
                                 // reject the error because we do not handle the error here
                                 return $q.reject(error);
+                            }).finally(function () {
+                                // hide the loading icon
+                                ionAutocompleteController.showLoadingIcon = false;
                             });
                         }
                     };
@@ -309,7 +315,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                             searchInputElement[0].focus();
                             setTimeout(function () {
                                 searchInputElement[0].focus();
-                            }, 0);
+                            }, 100);
                         }
 
                         // force the collection repeat to redraw itself as there were issues when the first items were added
@@ -449,6 +455,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // remove the component from the dom when scope is getting destroyed
                     scope.$on('$destroy', function () {
+                        $ionicBackdrop.release();
 
                         // angular takes care of cleaning all $watch's and listeners, but we still need to remove the modal
                         searchInputElement.remove();
