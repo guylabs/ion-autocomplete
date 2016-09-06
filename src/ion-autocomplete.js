@@ -298,12 +298,12 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         var searchInputElement = angular.element($document[0].querySelector('div.ion-autocomplete-container.' + ionAutocompleteController.randomCssClass + ' input'));
 
                         // focus on the search input field
-                        /*if (searchInputElement.length > 0) {
+                        if (searchInputElement.length > 0) {
                             searchInputElement[0].focus();
                             setTimeout(function () {
                                 searchInputElement[0].focus();
                             }, 0);
-                        }*/
+                        }
 
                         // force the collection repeat to redraw itself as there were issues when the first items were added
                         $ionicScrollDelegate.resize();
