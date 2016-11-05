@@ -1,6 +1,5 @@
-angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
-    '$ionicBackdrop', '$ionicScrollDelegate', '$document', '$q', '$parse', '$interpolate', '$ionicPlatform', '$compile', '$templateRequest',
-    function ($ionicBackdrop, $ionicScrollDelegate, $document, $q, $parse, $interpolate, $ionicPlatform, $compile, $templateRequest) {
+angular.module('ion-autocomplete', []).directive('ionAutocomplete', ['$ionicScrollDelegate', '$document', '$q', '$parse', '$interpolate', '$ionicPlatform', '$compile', '$ionicModal',
+    function ($ionicScrollDelegate, $document, $q, $parse, $interpolate, $ionicPlatform, $compile, $ionicModal) {
         return {
             require: ['ngModel', 'ionAutocomplete'],
             restrict: 'A',
@@ -20,7 +19,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 selectedItemsLabel: '@',
                 templateUrl: '@',
                 itemValueKey: '@',
-                itemViewValueKey: '@'
+                itemViewValueKey: '@',
+                autoOpen: '='
             },
             controllerAs: 'viewModel',
             controller: ['$attrs', '$timeout', '$scope', function ($attrs, $timeout, $scope) {
@@ -40,6 +40,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     controller.templateUrl = valueOrDefault(controller.templateUrl, undefined);
                     controller.itemValueKey = valueOrDefault(controller.itemValueKey, undefined);
                     controller.itemViewValueKey = valueOrDefault(controller.itemViewValueKey, undefined);
+                    controller.autoOpen = valueOrDefault(controller.autoOpen, false);
                 });
 
                 // set the default values of the passed in attributes
@@ -68,20 +69,18 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 var ngModelController = controllers[0];
                 var ionAutocompleteController = controllers[1];
 
-                // use a random css class to bind the modal to the component
-                ionAutocompleteController.randomCssClass = "ion-autocomplete-random-" + Math.floor((Math.random() * 1000) + 1);
-
                 var template = [
-                    '<div class="ion-autocomplete-container ' + ionAutocompleteController.randomCssClass + ' modal" style="display: none;">',
-                    '<div class="bar bar-header item-input-inset">',
+                    '<ion-modal-view>'+
+                    '<ion-header-bar class="item-input-inset">',
                     '<label class="item-input-wrapper">',
                     '<i class="icon ion-search placeholder-icon"></i>',
                     '<input type="search" class="ion-autocomplete-search" ng-model="viewModel.searchQuery" ng-model-options="viewModel.ngModelOptions" placeholder="{{viewModel.placeholder}}"/>',
                     '</label>',
                     '<div class="ion-autocomplete-loading-icon" ng-if="viewModel.showLoadingIcon && viewModel.loadingIcon"><ion-spinner icon="{{viewModel.loadingIcon}}"></ion-spinner></div>',
                     '<button class="ion-autocomplete-cancel button button-clear button-dark" ng-click="viewModel.cancelClick()">{{viewModel.cancelLabel}}</button>',
-                    '</div>',
-                    '<ion-content class="has-header">',
+                    '</ion-header-bar>',
+                    '<ion-content>',
+                    '<ion-list>',
                     '<ion-item class="item-divider">{{viewModel.selectedItemsLabel}}</ion-item>',
                     '<ion-item ng-if="viewModel.isArray(viewModel.selectedItems)" ng-repeat="selectedItem in viewModel.selectedItems track by $index" class="item-icon-left item-icon-right item-text-wrap">',
                     '<i class="icon ion-checkmark"></i>',
@@ -97,8 +96,9 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     '<ion-item ng-repeat="item in viewModel.searchItems track by $index" item-height="55px" item-width="100%" ng-click="viewModel.selectItem(item)" class="item-text-wrap">',
                     '{{viewModel.getItemValue(item, viewModel.itemViewValueKey)}}',
                     '</ion-item>',
+                    '</ion-list>',
                     '</ion-content>',
-                    '</div>'
+                    '</ion-modal-view>'
                 ].join('');
 
                 // load the template synchronously or asynchronously
@@ -106,18 +106,32 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // first check if a template url is set and use this as template
                     if (ionAutocompleteController.templateUrl) {
-                        return $templateRequest(ionAutocompleteController.templateUrl);
+                        return $ionicModal.fromTemplateUrl(ionAutocompleteController.templateUrl, {
+                            scope: scope,
+                            animation: 'slide-in-up',
+                            focusFirstInput: true
+                        })
                     } else {
-                        return template;
+                        return $ionicModal.fromTemplate(template, {
+                            scope: scope,
+                            animation: 'slide-in-up',
+                            focusFirstInput: true
+                        })
                     }
-                }).then(function (template) {
+                }).then(function (modal) {
 
                     // compile the template
-                    var searchInputElement = $compile(angular.element(template))(scope);
+                    var searchInputElement = angular.element(modal.$el.find('input'));
 
-                    // append the template to body
-                    $document.find('body').append(searchInputElement);
+                    // if the click is not handled externally, bind the handlers to the click and touch events of the input field
+                    if (ionAutocompleteController.manageExternally == "false") {
 
+                        element[0].addEventListener('focus', function(event) {                        
+                            
+                            ionAutocompleteController.searchQuery = undefined;
+                            ionAutocompleteController.showModal();
+                        });
+                    }
 
                     // returns the value of an item
                     ionAutocompleteController.getItemValue = function (item, key) {
@@ -281,40 +295,31 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     var searchContainerDisplayed = false;
 
                     ionAutocompleteController.showModal = function () {
+
                         if (searchContainerDisplayed) {
                             return;
                         }
 
-                        // show the backdrop and the search container
-                        $ionicBackdrop.retain();
-                        angular.element($document[0].querySelector('div.ion-autocomplete-container.' + ionAutocompleteController.randomCssClass)).css('display', 'block');
+                        modal.show();
 
                         // hide the container if the back button is pressed
                         scope.$deregisterBackButton = $ionicPlatform.registerBackButtonAction(function () {
+                            
                             ionAutocompleteController.hideModal();
                         }, 300);
 
-                        // get the compiled search field
-                        var searchInputElement = angular.element($document[0].querySelector('div.ion-autocomplete-container.' + ionAutocompleteController.randomCssClass + ' input'));
-
-                        // focus on the search input field
-                        if (searchInputElement.length > 0) {
-                            searchInputElement[0].focus();
-                            setTimeout(function () {
-                                searchInputElement[0].focus();
-                            }, 0);
-                        }
+                        ionAutocompleteController.fetchSearchQuery("", true);
 
                         // force the collection repeat to redraw itself as there were issues when the first items were added
-                        $ionicScrollDelegate.resize();
+                        //$ionicScrollDelegate.resize();
 
                         searchContainerDisplayed = true;
                     };
 
                     ionAutocompleteController.hideModal = function () {
-                        angular.element($document[0].querySelector('div.ion-autocomplete-container.' + ionAutocompleteController.randomCssClass)).css('display', 'none');
+                        
                         ionAutocompleteController.searchQuery = undefined;
-                        $ionicBackdrop.release();
+                        modal.hide();
                         scope.$deregisterBackButton && scope.$deregisterBackButton();
                         searchContainerDisplayed = false;
                     };
@@ -324,48 +329,6 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         moved: false,
                         startX: 0,
                         startY: 0
-                    };
-
-                    // store the start coordinates of the touch start event
-                    var onTouchStart = function (e) {
-                        scrolling.moved = false;
-                        // Use originalEvent when available, fix compatibility with jQuery
-                        if (typeof(e.originalEvent) !== 'undefined') {
-                            e = e.originalEvent;
-                        }
-                        scrolling.startX = e.touches[0].clientX;
-                        scrolling.startY = e.touches[0].clientY;
-                    };
-
-                    // check if the finger moves more than 10px and set the moved flag to true
-                    var onTouchMove = function (e) {
-                        // Use originalEvent when available, fix compatibility with jQuery
-                        if (typeof(e.originalEvent) !== 'undefined') {
-                            e = e.originalEvent;
-                        }
-                        if (Math.abs(e.touches[0].clientX - scrolling.startX) > 10 ||
-                            Math.abs(e.touches[0].clientY - scrolling.startY) > 10) {
-                            scrolling.moved = true;
-                        }
-                    };
-
-                    // click handler on the input field to show the search container
-                    var onClick = function (event) {
-                        // only open the dialog if was not touched at the beginning of a legitimate scroll event
-                        if (scrolling.moved) {
-                            return;
-                        }
-
-                        // prevent the default event and the propagation
-                        event.preventDefault();
-                        event.stopPropagation();
-
-                        // call the fetch search query method once to be able to initialize it when the modal is shown
-                        // use an empty string to signal that there is no change in the search query
-                        ionAutocompleteController.fetchSearchQuery("", true);
-
-                        // show the ionic backdrop and the search container
-                        ionAutocompleteController.showModal();
                     };
 
                     var isKeyValueInObjectArray = function (objectArray, key, value) {
@@ -393,20 +356,15 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         });
                     };
 
-                    // if the click is not handled externally, bind the handlers to the click and touch events of the input field
-                    if (ionAutocompleteController.manageExternally == "false") {
-                        element.bind('touchstart', onTouchStart);
-                        element.bind('touchmove', onTouchMove);
-                        element.bind('touchend click focus', onClick);
-                    }
-
                     // cancel handler for the cancel button which clears the search input field model and hides the
                     // search container and the ionic backdrop and calls the cancel button clicked callback
                     ionAutocompleteController.cancelClick = function () {
+
                         ionAutocompleteController.hideModal();
 
                         // call cancel button clicked callback
                         if (angular.isDefined(attrs.cancelButtonClickedMethod)) {
+                            
                             ionAutocompleteController.cancelButtonClickedMethod({
                                 callback: {
                                     selectedItems: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : ionAutocompleteController.selectedItems,
@@ -442,7 +400,6 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // remove the component from the dom when scope is getting destroyed
                     scope.$on('$destroy', function () {
-                        $ionicBackdrop.release();
 
                         // angular takes care of cleaning all $watch's and listeners, but we still need to remove the modal
                         searchInputElement.remove();
@@ -464,6 +421,8 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                         return ionAutocompleteController.getItemValue(viewValue, ionAutocompleteController.itemValueKey);
                     });
 
+                    if (ionAutocompleteController.autoOpen)
+                        ionAutocompleteController.showModal();
                 });
 
             }
