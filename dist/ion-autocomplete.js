@@ -419,6 +419,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     // handler for the clear button which clears the search input field model
                     ionAutocompleteController.clearClick = function () {
                         ionAutocompleteController.searchQuery = undefined;
+                        ionAutocompleteController.searchItems = [];
                     };
 
                     // cancel handler for the cancel button which clears the search input field model and hides the
