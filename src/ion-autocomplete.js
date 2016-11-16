@@ -9,6 +9,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 ngModel: '=',
                 externalModel: '=',
                 templateData: '=',
+                maxSelectedItems: '=',
                 itemsMethod: '&',
                 itemsClickedMethod: '&',
                 itemsRemovedMethod: '&',
@@ -43,11 +44,11 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                 });
 
                 // set the default values of the passed in attributes
-                this.maxSelectedItems = valueOrDefault($attrs.maxSelectedItems, undefined);
                 this.itemsMethodValueKey = valueOrDefault($attrs.itemsMethodValueKey, undefined);
                 this.componentId = valueOrDefault($attrs.componentId, undefined);
                 this.loadingIcon = valueOrDefault($attrs.loadingIcon, undefined);
                 this.manageExternally = valueOrDefault($attrs.manageExternally, "false");
+                this.clearOnSelect = valueOrDefault($attrs.clearOnSelect, "true");
                 this.ngModelOptions = valueOrDefault($scope.$eval($attrs.ngModelOptions), {});
 
                 // loading flag if the items-method is a function
@@ -144,13 +145,15 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     // function which selects the item, hides the search container and the ionic backdrop if it has not maximum selected items attribute set
                     ionAutocompleteController.selectItem = function (item) {
 
-                        // clear the search query when an item is selected
-                        ionAutocompleteController.searchQuery = undefined;
+                        // if the clear on select is true, clear the search query when an item is selected
+                        if (ionAutocompleteController.clearOnSelect == "true") {
+                            ionAutocompleteController.searchQuery = undefined;
+                        }
 
                         // return if the max selected items is not equal to 1 and the maximum amount of selected items is reached
                         if (ionAutocompleteController.maxSelectedItems != "1" &&
                             angular.isArray(ionAutocompleteController.selectedItems) &&
-                            ionAutocompleteController.maxSelectedItems == ionAutocompleteController.selectedItems.length) {
+                            ionAutocompleteController.maxSelectedItems <= ionAutocompleteController.selectedItems.length) {
                             return;
                         }
 
@@ -182,6 +185,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                                 callback: {
                                     item: item,
                                     selectedItems: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : ionAutocompleteController.selectedItems,
+                                    selectedItemsArray: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : [ionAutocompleteController.selectedItems],
                                     componentId: ionAutocompleteController.componentId
                                 }
                             });
@@ -211,6 +215,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                                 callback: {
                                     item: removed,
                                     selectedItems: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : ionAutocompleteController.selectedItems,
+                                    selectedItemsArray: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : [ionAutocompleteController.selectedItems],
                                     componentId: ionAutocompleteController.componentId
                                 }
                             });
@@ -220,6 +225,15 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                     // watcher on the search field model to update the list according to the input
                     scope.$watch('viewModel.searchQuery', function (query) {
                         ionAutocompleteController.fetchSearchQuery(query, false);
+                    });
+
+                    // watcher on the max selected items to update the selected items label
+                    scope.$watch('viewModel.maxSelectedItems', function (maxSelectedItems) {
+
+                        // only update the label if the value really changed
+                        if (ionAutocompleteController.maxSelectedItems != maxSelectedItems) {
+                            ionAutocompleteController.selectedItemsLabel = $interpolate("Selected items{{maxSelectedItems ? ' (max. ' + maxSelectedItems + ')' : ''}}:")(ionAutocompleteController);
+                        }
                     });
 
                     // update the search items based on the returned value of the items-method
@@ -302,7 +316,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                             searchInputElement[0].focus();
                             setTimeout(function () {
                                 searchInputElement[0].focus();
-                            }, 0);
+                            }, 100);
                         }
 
                         // force the collection repeat to redraw itself as there were issues when the first items were added
@@ -410,6 +424,7 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
                             ionAutocompleteController.cancelButtonClickedMethod({
                                 callback: {
                                     selectedItems: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : ionAutocompleteController.selectedItems,
+                                    selectedItemsArray: angular.isArray(ionAutocompleteController.selectedItems) ? ionAutocompleteController.selectedItems.slice() : [ionAutocompleteController.selectedItems],
                                     componentId: ionAutocompleteController.componentId
                                 }
                             });

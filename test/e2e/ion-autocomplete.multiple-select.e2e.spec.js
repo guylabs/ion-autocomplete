@@ -113,6 +113,7 @@ describe('ion-autocomplete multiple select', function () {
                     expect(clickedModelValue.item.name).toEqual('test1');
                     expect(clickedModelValue.selectedItems.length).toEqual(1);
                     expect(clickedModelValue.selectedItems[0].name).toEqual('test1');
+                    expect(clickedModelValue.selectedItemsArray).toEqual(clickedModelValue.selectedItems);
                 });
 
                 // select second item
@@ -132,6 +133,7 @@ describe('ion-autocomplete multiple select', function () {
                         expect(clickedModelValue.selectedItems.length).toEqual(2);
                         expect(clickedModelValue.selectedItems[0].name).toEqual('test1');
                         expect(clickedModelValue.selectedItems[1].name).toEqual('test2');
+                        expect(clickedModelValue.selectedItemsArray).toEqual(clickedModelValue.selectedItems);
                     });
 
                     // select third item
@@ -153,6 +155,7 @@ describe('ion-autocomplete multiple select', function () {
                             expect(clickedModelValue.selectedItems[0].name).toEqual('test1');
                             expect(clickedModelValue.selectedItems[1].name).toEqual('test2');
                             expect(clickedModelValue.selectedItems[2].name).toEqual('test3');
+                            expect(clickedModelValue.selectedItemsArray).toEqual(clickedModelValue.selectedItems);
                         });
 
                         // delete the item from the selected items
@@ -171,6 +174,7 @@ describe('ion-autocomplete multiple select', function () {
                             expect(clickedModelValue.selectedItems[0].name).toEqual('test1');
                             expect(clickedModelValue.selectedItems[1].name).toEqual('test2');
                             expect(clickedModelValue.selectedItems[2].name).toEqual('test3');
+                            expect(clickedModelValue.selectedItemsArray).toEqual(clickedModelValue.selectedItems);
                         });
                         element(by.css('input.ion-autocomplete-removed-model')).evaluate('removedValueModel').then(function (removedValueModel) {
                             //  Showing result of final removed callback
@@ -178,6 +182,7 @@ describe('ion-autocomplete multiple select', function () {
                             expect(removedValueModel.selectedItems.length).toEqual(2);
                             expect(removedValueModel.selectedItems[0].name).toEqual('test1');
                             expect(removedValueModel.selectedItems[1].name).toEqual('test3');
+                            expect(removedValueModel.selectedItemsArray).toEqual(removedValueModel.selectedItems);
                         });
                     });
 
@@ -223,6 +228,7 @@ describe('ion-autocomplete multiple select', function () {
                         expect(clickedModelValue.selectedItems.length).toEqual(2);
                         expect(clickedModelValue.selectedItems[0].name).toEqual('test1');
                         expect(clickedModelValue.selectedItems[1].name).toEqual('test2');
+                        expect(clickedModelValue.selectedItemsArray).toEqual(clickedModelValue.selectedItems);
                     });
                     expect($('input.ion-autocomplete-removed-model').evaluate('removedValueModel')).toEqual('');
 
@@ -275,7 +281,6 @@ describe('ion-autocomplete multiple select', function () {
         for (var i = 0; i < count; i++) {
             expect(items.get(i).getText().isDisplayed()).toBeTruthy();
         }
-        //expect(items.get(count).getText().isDisplayed()).toBeFalsy();
     }
 
 });
