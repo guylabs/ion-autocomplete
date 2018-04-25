@@ -348,6 +348,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // store the start coordinates of the touch start event
                     var onTouchStart = function (e) {
+                        if (element.attr("disabled")) {
+                            return;
+                        }
+
                         scrolling.moved = false;
                         // Use originalEvent when available, fix compatibility with jQuery
                         if (typeof(e.originalEvent) !== 'undefined') {
@@ -359,6 +363,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // check if the finger moves more than 10px and set the moved flag to true
                     var onTouchMove = function (e) {
+                        if (element.attr("disabled")) {
+                            return;
+                        }
+
                         // Use originalEvent when available, fix compatibility with jQuery
                         if (typeof(e.originalEvent) !== 'undefined') {
                             e = e.originalEvent;
@@ -371,6 +379,10 @@ angular.module('ion-autocomplete', []).directive('ionAutocomplete', [
 
                     // click handler on the input field to show the search container
                     var onClick = function (event) {
+                        if (element.attr("disabled")) {
+                            return;
+                        }
+
                         // only open the dialog if was not touched at the beginning of a legitimate scroll event
                         if (scrolling.moved) {
                             return;
