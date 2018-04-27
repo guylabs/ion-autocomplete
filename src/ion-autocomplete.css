@@ -1,4 +1,4 @@
-.ion-autocomplete-container {
+.modal.ion-autocomplete-container {
     position: fixed;
     top: 0;
     right: 0;
@@ -9,7 +9,7 @@
     margin: auto;
 }
 
-input.ion-autocomplete[readonly] {
+input.ion-autocomplete[readonly]:not(.cloned-text-input), {
     background-color: transparent;
     cursor: text;
 }
