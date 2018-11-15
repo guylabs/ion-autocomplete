@@ -7,6 +7,8 @@ ion-autocomplete
 
 > Configurable Ionic directive for an autocomplete dropdown.
 
+:warning: Please follow the [Guidelines to report an issue](#guidelines-to-report-an-issue)
+
 #Table of contents
 
 - [Demo](#demo)
@@ -35,9 +37,13 @@ ion-autocomplete
         - [Template data](#template-data)
         - [Loading icon](#loading-icon)
         - [Manage externally](#manage-externally)
+        - [Selected items](#selected-items)
+        - [Clear on select](#clear-on-select)
+        - [Open and close CSS class ](#open-and-close-css-class)
     - [Using expressions in value keys](#using-expressions-in-value-keys)
     - [Debouncing](#debouncing)
     - [Usage inside an Ionic modal](#usage-inside-an-ionic-modal)
+- [Guidelines to report an issue](#guidelines-to-report-an-issue)
 - [Release notes](#release-notes)
 - [Acknowledgements](#acknowledgements)
 - [License](#license)
@@ -93,7 +99,8 @@ ion-autocomplete version | Ionic version
 0.2.0 - 0.2.1 | 1.0.0-rc.3
 0.2.2 - 0.2.3 | 1.0.0
 0.3.0 - 0.3.1 | 1.1.0
-0.3.2 - latest | 1.1.1
+0.3.2 - 0.3.3 | 1.1.1
+0.4.0 - latest | 1.3.2
 
 # Usage
 
@@ -103,7 +110,7 @@ To use the `ion-autocomplete` directive in single select mode you need set the `
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" max-selected-items="1" />
 ```
 
-If you want to use it in multiple select mode you do not need to add anything special, just the following snippet to your template: 
+If you want to use it in multiple select mode you do not need to add anything special, just the following snippet to your template:
 ```html
 //usage with the attribute restriction
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" />
@@ -291,25 +298,31 @@ You are able to set the `max-selected-items` attribute to any number to set the 
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" max-selected-items="3" />
 ```
 
-Then the user is just able to select three items out of the returned items and also delete them again. The given `ng-model` is an 
+Then the user is just able to select three items out of the returned items and also delete them again. The given `ng-model` is an
 array if multiple items are selected.
+
+You can also set a scope variable instead of a fixed value such that you can dynamically change the `max-selected-items` property according to your
+ requirements.
 
 ### The `items-clicked-method`
 
-You are able to pass a function to the `items-clicked-method` attribute to be notified when an item is clicked. The name of the 
+You are able to pass a function to the `items-clicked-method` attribute to be notified when an item is clicked. The name of the
 parameter of the function must be `callback`. Here is an example:
 
 Define the callback in your scope:
 ```javascript
 $scope.clickedMethod = function (callback) {
     // print out the selected item
-    console.log(callback.item); 
-    
+    console.log(callback.item);
+
     // print out the component id
     console.log(callback.componentId);
-    
+
     // print out the selected items if the multiple select flag is set to true and multiple elements are selected
-    console.log(callback.selectedItems); 
+    console.log(callback.selectedItems);
+
+    // print out the selected items as an array
+    console.log(callback.selectedItemsArray);
 }
 ```
 
@@ -322,7 +335,7 @@ Then you get a callback object with the clicked/selected item and the selected i
 
 ### The `items-removed-method`
 
-You are able to pass a function to the `items-removed-method` attribute to be notified when an item is removed from a multi-select list. The name of the 
+You are able to pass a function to the `items-removed-method` attribute to be notified when an item is removed from a multi-select list. The name of the
 parameter of the function must be `callback`. It is similar to items-clicked-method.  This attribute has no defined behaviour for a single select list.
 
 Here is an example:
@@ -331,13 +344,16 @@ Define the callback in your scope:
 ```javascript
 $scope.removedMethod = function (callback) {
     // print out the removed item
-    console.log(callback.item); 
+    console.log(callback.item);
 
     // print out the component id
     console.log(callback.componentId);
-    
+
     // print out the selected items
-    console.log(callback.selectedItems); 
+    console.log(callback.selectedItems);
+
+    // print out the selected items as an array
+    console.log(callback.selectedItemsArray);
 }
 ```
 
@@ -350,16 +366,16 @@ Then you get a callback object with the removed item and the selected items.
 
 ### External model
 
-The two way binded external model (`external-model` attribute on the component) is used to prepopulate the selected items with the model value. The [`model-to-item-method`](#the-model-to-item-method) is used to get the view item to the model and then the item is selected in the 
-component. Be aware that the `external-model` is not updated by the component when an item is selected. It is just used to prepopulate or clear the selected items. If you need to get the current selected items you are able 
+The two way binded external model (`external-model` attribute on the component) is used to prepopulate the selected items with the model value. The [`model-to-item-method`](#the-model-to-item-method) is used to get the view item to the model and then the item is selected in the
+component. Be aware that the `external-model` is not updated by the component when an item is selected. It is just used to prepopulate or clear the selected items. If you need to get the current selected items you are able
 to read the value of the `ng-model`. For an example have a look at the [`model-to-item-method`](#the-model-to-item-method) documentation.
 
 If you need to clear the selected items then you are able to set the `external-model` to an empty array (another value is not clearing the selected items).
 
 ### The `model-to-item-method`
 
-This method is used if you want to prepopulate the model of the `ion-autocomplete` component. The [external model](#external-model) needs 
-to have the same data as it would have when you select the items by hand. The component then takes the model values 
+This method is used if you want to prepopulate the model of the `ion-autocomplete` component. The [external model](#external-model) needs
+to have the same data as it would have when you select the items by hand. The component then takes the model values
 and calls the specified `model-to-item-method` to resolve the item from the back end and select it such that it is preselected.
 
 Here a small example:
@@ -368,7 +384,7 @@ Define the `model-to-item-method` and `external-model` in your scope:
 ```javascript
 $scope.modelToItemMethod = function (modelValue) {
 
-    // get the full model item from the model value and return it. You need to implement the `getModelItem` method by yourself 
+    // get the full model item from the model value and return it. You need to implement the `getModelItem` method by yourself
     // as this is just a sample. The method needs to retrieve the whole item (like the `items-method`) from just the model value.
     var modelItem = getModelItem(modelValue);
     return modelItem;
@@ -392,17 +408,20 @@ Note that the parameter for the `model-to-item-method` needs to be named `modelV
 
 ### The `cancel-button-clicked-method` (same as done button)
 
-You are able to pass a function to the `cancel-button-clicked-method` attribute to be notified when the cancel/done button is clicked to close the modal. The name of the 
+You are able to pass a function to the `cancel-button-clicked-method` attribute to be notified when the cancel/done button is clicked to close the modal. The name of the
 parameter of the function must be `callback`. Here is an example:
 
 Define the callback in your scope:
 ```javascript
-$scope.cancelButtonClickedMethod = function (callback) {    
+$scope.cancelButtonClickedMethod = function (callback) {
     // print out the component id
     console.log(callback.componentId);
-    
+
     // print out the selected items
-    console.log(callback.selectedItems); 
+    console.log(callback.selectedItems);
+
+    // print out the selected items as an array
+    console.log(callback.selectedItemsArray);
 }
 ```
 
@@ -415,15 +434,15 @@ Then you get a callback object with the selected items and the component id.
 
 ### Component Id
 
-The component id is an attribute on the `ion-autocomplete` component which sets a given id to the component. This id is then returned in 
+The component id is an attribute on the `ion-autocomplete` component which sets a given id to the component. This id is then returned in
 the callback object of the [`items-clicked-method`](#the-items-clicked-method) and as a second parameter of the [`items-method`](#the-items-method).
 Here an example:
 ```html
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" component-id="component1" />`
 ```
 
-You are able to set this is on each component if you have multiple components built up in a ng-repeat where you do not want to have multiple `items-method` 
-for each component because you want to display other items in each component. You will also get it in the `items-clicked-method` callback object such that you just 
+You are able to set this is on each component if you have multiple components built up in a ng-repeat where you do not want to have multiple `items-method`
+for each component because you want to display other items in each component. You will also get it in the `items-clicked-method` callback object such that you just
 need to define one callback method and you can distinguish the calls with the `componentId` attribute right inside the method.
 
 ### Placeholder
@@ -462,13 +481,13 @@ You are also able to set an own template for the autocomplete component (default
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" template-url="templates/template.html" />`
 ```
 
-This way you are able to override the default template (the `template` variable [here](https://github.com/guylabs/ion-autocomplete/blob/master/src/ion-autocomplete.js#L68)) 
+This way you are able to override the default template (the `template` variable [here](https://github.com/guylabs/ion-autocomplete/blob/master/src/ion-autocomplete.js#L68))
 and use your own template. The component will use the default template if the `template-url` is not defined.
 
 You are able to use all the configurable attributes as expressions in your template. I would advise to use the default template as base template
 and then add your custom additions to it.
 
-> Please also take care when you change how the items are shown or what method is called if an item is clicked, 
+> Please also take care when you change how the items are shown or what method is called if an item is clicked,
 > because changing this could make the component unusable.
 
 You will need to set the proper `randomCssClass` for the outer most div container in your template and you can get the value by using the `{{viewModel.randomCssClass}}` expression
@@ -480,8 +499,8 @@ like in the following example:
 
 ### Template data
 
-If you change the template with the `template-url` and want to pass in additional data then you are able to set 
-the `template-data` attribute on the directive. If you for example have a `templateData.testData` expression in your own 
+If you change the template with the `template-url` and want to pass in additional data then you are able to set
+the `template-data` attribute on the directive. If you for example have a `templateData.testData` expression in your own
 template like this:
 ```html
 ...
@@ -503,13 +522,13 @@ Then the expression in your template gets resolved properly.
 
 ### Loading icon
 
-If you want to display a loading icon when the `items-method` promise gets resolved then you need to set the `loading-icon` 
-attribute to a value given by the Ionic spinner: http://ionicframework.com/docs/api/directive/ionSpinner. Then the spinner should 
-be shown at the right side of the search input field. 
+If you want to display a loading icon when the `items-method` promise gets resolved then you need to set the `loading-icon`
+attribute to a value given by the Ionic spinner: http://ionicframework.com/docs/api/directive/ionSpinner. Then the spinner should
+be shown at the right side of the search input field.
 
 ### Manage externally
 
-To manage the `ion-autocomplete` component externally means that you need to handle when the search modal is shown. To enable this functionality 
+To manage the `ion-autocomplete` component externally means that you need to handle when the search modal is shown. To enable this functionality
 you need to set the `manage-externally` attribute to `true` and then you can call the `showModal()` method on the controller. Here an example:
 
 ```javascript
@@ -525,15 +544,31 @@ this.clickButton = function () {
 }
 ```
 
-Then you will need to click on the button to open the search modal. This functionality is useful if the user wants to edit the selected item inside the 
+Then you will need to click on the button to open the search modal. This functionality is useful if the user wants to edit the selected item inside the
 input field after she/he selected the item/s.
 
 ### Selected items
 
-If you want to clear the selected items programmatically, then you are able to set the `selected-items` attribute with a two way binded model value which then gets updated 
+If you want to clear the selected items programmatically, then you are able to set the `selected-items` attribute with a two way binded model value which then gets updated
 when the items get selected. If you want to clear them just set the given model value to an empty array.
 
 Please *do not* use it for pre populating the selected items. For this use the standard `ng-model` value and [the `model-to-item-method`](#the-model-to-item-method).
+
+### Clear on select
+
+This option is to clear the search input when an item is selected. You need to set it to `true` as in the following example to enable this functionality:
+
+```javascript
+<input ion-autocomplete type="text" class="ion-autocomplete" autocomplete="off" ng-model="model" clear-on-select="true" />
+```
+
+### Open and close CSS class
+
+By default two CSS classes are used to display and hide the modal, namely the ion-autocomplete-open and the ion-autocomplete-close CSS class. These are used to show and hide the modal. When you need to override these classes, you can define the following two properties with your CSS class.
+
+```javascript
+<input ion-autocomplete type="text" class="ion-autocomplete" open-class="my-open-class" close-class="my-close-class" />
+```
 
 ## Using expressions in value keys
 
@@ -564,9 +599,9 @@ name attribute of the child object:
 ## Debouncing
 
 If you want to debounce the search input field request, then you are able to set the `ng-model-options` attribute on the input field where you define the `ion-autocomplete`
-directive. These options will then be added to the search input field. Be aware that when you add a debounce the update of the model value will also be debounced the 
+directive. These options will then be added to the search input field. Be aware that when you add a debounce the update of the model value will also be debounced the
  same amount as the request to the `items-method`. Here a small example:
- 
+
 ```html
 <input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" ng-model-options="{debounce:1000}" />
 ```
@@ -580,6 +615,20 @@ $scope.$on('$destroy', function () {
         $scope.modal.remove();
     });
 ```
+
+# Guidelines to report an issue
+
+Please follow these rules when you create an issue here in Github:
+
+1. Have a meaningful title of the issue.
+2. Describe exactly how to reproduce the issue and create a Codepen based on the [demo](#demo) Codepen which reproduces the issue.
+3. Show how you configured the directive with all the options.
+4. Write down the Ionic version you use and which version of the directive.
+
+These steps are needed to be able to analyze the issue properly without asking much questions. It is also useful for others when the issues
+exactly describe what the problem is and in which environment it happened.
+
+For feature request please add a proper title and describe it as much as possible and also tell about the requirement you have.
 
 # Release notes
 

@@ -76,7 +76,7 @@ describe('ion-autocomplete single select', function () {
     });
 
     it('must show the itemViewValueKey of the value in the input field if the model is already defined', function () {
-        scope.model = {key: {value: "value1"}};
+        scope.model = { key: { value: "value1" } };
         scope.modelToItemMethod = function (query) {
             return query;
         };
@@ -88,7 +88,7 @@ describe('ion-autocomplete single select', function () {
     });
 
     it('must show the dynamic itemViewValueKey of the value in the input field if the model is already defined', function () {
-        scope.model = {key: {value: "value1"}};
+        scope.model = { key: { value: "value1" } };
         scope.modelToItemMethod = function (query) {
             return query;
         };
@@ -101,7 +101,7 @@ describe('ion-autocomplete single select', function () {
     });
 
     it('must not show any value if the model is cleared', function () {
-        scope.model = {key: {value: "value1"}};
+        scope.model = { key: { value: "value1" } };
         scope.modelToItemMethod = function (query) {
             return query;
         };
@@ -156,17 +156,17 @@ describe('ion-autocomplete single select', function () {
         var itemValue = element.controller('ionAutocomplete').getItemValue("no-object");
         expect(itemValue).toBe("no-object");
 
-        itemValue = element.controller('ionAutocomplete').getItemValue({key: "value"}, "key");
+        itemValue = element.controller('ionAutocomplete').getItemValue({ key: "value" }, "key");
         expect(itemValue).toBe("value");
 
-        itemValue = element.controller('ionAutocomplete').getItemValue({key: "value"});
-        expect(itemValue).toEqual({key: "value"});
+        itemValue = element.controller('ionAutocomplete').getItemValue({ key: "value" });
+        expect(itemValue).toEqual({ key: "value" });
     });
 
     it('must get the proper item value with expressions', function () {
         var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model"/>');
 
-        var itemValue = element.controller('ionAutocomplete').getItemValue({key: {value: "value1"}}, "key.value");
+        var itemValue = element.controller('ionAutocomplete').getItemValue({ key: { value: "value1" } }, "key.value");
         expect(itemValue).toBe("value1");
     });
 
@@ -300,7 +300,7 @@ describe('ion-autocomplete single select', function () {
         expect(element.controller('ionAutocomplete').searchItems.length).toBe(0);
 
         // resolve the promise and expect that the list has two items
-        deferred.resolve({data: [{name: "name", view: "view"}, {name: "name1", view: "view1"}]});
+        deferred.resolve({ data: [{ name: "name", view: "view" }, { name: "name1", view: "view1" }] });
         scope.$digest();
         expect(element.controller('ionAutocomplete').searchItems.length).toBe(2);
     });
@@ -308,37 +308,42 @@ describe('ion-autocomplete single select', function () {
     it('must show the search container when the input field is clicked', function () {
         var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model"/>');
 
-        // expect that the search container has no display css attribute set
-        expect(getSearchContainerElement().css('display')).toBe('none');
+        // expect that the search container has ion-autocomplete-close class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
 
         // click on the element
         element.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('block');
+        // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(true);
     });
 
     it('must hide the search container when the cancel field is clicked', function () {
         var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model"/>');
 
-        // expect that the search container has no display css attribute set
-        expect(getSearchContainerElement().css('display')).toBe('none');
+        // expect that the search container has ion-autocomplete-close class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
 
         // click on the element
         element.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('block');
+         // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(true);
 
         // click on the cancel button
         var cancelButtonElement = getCancelButtonElement();
         cancelButtonElement.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('none');
+         // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
     });
 
     it('must be able to set a templateUrl', function () {
@@ -385,19 +390,22 @@ describe('ion-autocomplete single select', function () {
         scope.$digest();
 
         // expect that the search container has none set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('none');
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
 
         // show the search container externally
         element.controller('ionAutocomplete').showModal();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('block');
+        // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(true);
 
         // show the search container externally
         element.controller('ionAutocomplete').hideModal();
 
-        // expect that the search container has none set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('none');
+         // expect that the search container has ion-autocomplete-close class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
     });
 
     it('must pass the outter ng-model-options to the inner search input field', function () {
@@ -426,6 +434,26 @@ describe('ion-autocomplete single select', function () {
 
         // check that the search container element is not anymore in the dom
         expect(getSearchContainerElement().length).toBe(0);
+    });
+
+     it('must be able to override ion-autocomplete-close and ion-autocomplete-open class', function () {
+        var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" close-class="test-close-class" open-class="test-open-class" autocomplete="off" ng-model="model"/>');
+
+        // expect that the search container has close-class class set
+        expect(getSearchContainerElement().hasClass('test-close-class')).toBe(true);
+        expect(getSearchContainerElement().hasClass('test-open-class')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
+
+        // click on the element
+        element.triggerHandler('click');
+        scope.$digest();
+
+        // expect that the search container has open-class class set
+        expect(getSearchContainerElement().hasClass('test-close-class')).toBe(false);
+        expect(getSearchContainerElement().hasClass('test-open-class')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
     });
 
     /**

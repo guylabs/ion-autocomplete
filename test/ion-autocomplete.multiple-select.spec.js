@@ -38,15 +38,18 @@ describe('ion-autocomplete multiple select', function () {
     it('must hide/show the selectItems label if the items size changes', function () {
         var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" multiple-select="true"/>');
 
-        // expect that the search container has no display css attribute set
-        expect(getSearchContainerElement().css('display')).toBe('none');
+         // expect that the search container has ion-autocomplete-close class set       
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
 
         // click on the element
         element.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('block');
+         // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(true);
+
 
         // expect that the selectItems divider is hidden
         expect(getItemDividerElement(1)[0]).toBe(undefined);
@@ -62,23 +65,26 @@ describe('ion-autocomplete multiple select', function () {
     it('must hide the search container when the cancel field is clicked', function () {
         var element = compileElement('<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ng-model="model" multiple-select="true"/>');
 
-        // expect that the search container has no display css attribute set
-        expect(getSearchContainerElement().css('display')).toBe('none');
+        // expect that the search container has ion-autocomplete-close class set       
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
 
         // click on the element
         element.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('block');
+         // expect that the search container has ion-autocomplete-open class set
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(false);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(true);
 
         // click on the cancel button
         var cancelButtonElement = getCancelButtonElement();
         cancelButtonElement.triggerHandler('click');
         scope.$digest();
 
-        // expect that the search container has block set as display css attribute
-        expect(getSearchContainerElement().css('display')).toBe('none');
+        // expect that the search container has ion-autocomplete-close class set       
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-close')).toBe(true);
+        expect(getSearchContainerElement().hasClass('ion-autocomplete-open')).toBe(false);
     });
 
     /**

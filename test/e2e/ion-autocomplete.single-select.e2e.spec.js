@@ -103,6 +103,7 @@ describe('ion-autocomplete single select', function () {
                 element(by.css('input.ion-autocomplete-callback-model')).evaluate('callbackValueModel').then(function (callbackModelValue) {
                     expect(callbackModelValue.item.name).toEqual('test1');
                     expect(callbackModelValue.selectedItems).toEqual(callbackModelValue.item);
+                    expect(callbackModelValue.selectedItemsArray).toEqual([callbackModelValue.item]);
                     expect(callbackModelValue.componentId).toEqual('comp1');
                 });
             })
@@ -168,6 +169,7 @@ describe('ion-autocomplete single select', function () {
                         // expect the callback value
                         element(by.css('input.ion-autocomplete-done-callback-model')).evaluate('doneButtonCallbackValueModel').then(function (callbackModelValue) {
                             expect(callbackModelValue.selectedItems.name).toEqual("test1");
+                            expect(callbackModelValue.selectedItemsArray).toEqual([callbackModelValue.selectedItems]);
                             expect(callbackModelValue.componentId).toEqual('comp1');
                         });
                     });

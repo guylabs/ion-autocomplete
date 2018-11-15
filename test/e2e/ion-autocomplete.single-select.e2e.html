@@ -41,6 +41,16 @@
                     };
                 });
     </script>
+    <style>
+        .test-open-class {
+            display: block;
+        }
+
+        .test-close-class {
+            display: none;
+        }
+
+    </style>
 </head>
 
 <body ng-controller="IonAutocompleteController">
@@ -60,7 +70,9 @@
                        items-clicked-method="itemsClicked(callback)"
                        component-id="comp1"
                        max-selected-items="1"
-                       cancel-button-clicked-method="doneButtonClicked(callback)"/>
+                       cancel-button-clicked-method="doneButtonClicked(callback)"
+                       open-class="test-open-class"
+                       close-class="test-close-class"/>
             </label>
 
             <label class="item item-input">

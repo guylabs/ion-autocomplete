@@ -17,3 +17,11 @@ input.ion-autocomplete[readonly] {
 .ion-autocomplete-loading-icon {
     padding-left: 10px;
 }
+
+.ion-autocomplete-open {
+    display: block;
+}
+
+.ion-autocomplete-close {
+    display: none;
+}

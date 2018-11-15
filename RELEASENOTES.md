@@ -1,5 +1,27 @@
 # Release notes of ion-autocomplete
 
+## Version 0.4.0
+
+* Tag: [0.4.0](https://github.com/guylabs/ion-autocomplete/tree/v0.4.0)
+* Release: [ion-autocomplete-0.4.0.zip](https://github.com/guylabs/ion-autocomplete/archive/v0.4.0.zip)
+
+### Changes
+
+* Upgraded to Ionic `1.3.2` and Angular `1.5.3` - [#189](https://github.com/guylabs/ion-autocomplete/issues/189)
+* Added open and close CSS class feature. Thanks to [@nlarche](https://github.com/nlarche) for the pull request. - [#221](https://github.com/guylabs/ion-autocomplete/pull/221)
+
+## Version 0.3.3
+
+* Tag: [0.3.3](https://github.com/guylabs/ion-autocomplete/tree/v0.3.3)
+* Release: [ion-autocomplete-0.3.3.zip](https://github.com/guylabs/ion-autocomplete/archive/v0.3.3.zip)
+
+### Changes
+
+* Several bugs are fixed.
+* New `clearOnSelect` option - [#186](https://github.com/guylabs/ion-autocomplete/pull/186)
+* The `maxSelectedItems` option is now two way binded allowing for dynamic values - [#140](https://github.com/guylabs/ion-autocomplete/issues/140)
+* Added a new property `selectedItemsArray` to the callback responses - [#115](https://github.com/guylabs/ion-autocomplete/issues/115)
+
 ## Version 0.3.2
 
 * Tag: [0.3.2](https://github.com/guylabs/ion-autocomplete/tree/v0.3.2)
@@ -32,7 +54,7 @@ is now returned as object and not as an array with one element. If you use a cus
 
 * As of version `0.3.1` the `multiple-select` attribute has been dropped in favor of the `max-selected-items` attribute.
 Please have a look at the documentation here https://github.com/guylabs/ion-autocomplete#the-max-selected-items on how to migrate this.
-* The `search-items` attribute has been removed as now the initialization of the `search-items` is done in the `items-method`. See the 
+* The `search-items` attribute has been removed as now the initialization of the `search-items` is done in the `items-method`. See the
 new documentation here https://github.com/guylabs/ion-autocomplete#the-items-method.
 
 ## Version 0.3.0
@@ -49,8 +71,8 @@ new documentation here https://github.com/guylabs/ion-autocomplete#the-items-met
 
 ### Migration notes
 
-* As of version `0.3.0` the component does not support the element restriction anymore, such that you are just able to 
-use the attribute restriction on all your elements. This means that you need to convert all `<ion-autocomplete ... />` 
+* As of version `0.3.0` the component does not support the element restriction anymore, such that you are just able to
+use the attribute restriction on all your elements. This means that you need to convert all `<ion-autocomplete ... />`
  tags to the following tag: `<input ion-autocomplete type="text" readonly="readonly" class="ion-autocomplete" autocomplete="off" ... />`
 
 ## Version 0.2.3
